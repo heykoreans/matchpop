@@ -1665,16 +1665,17 @@ async function fetchLeaderboard() {
   try {
     // 플레이어별 best_brain_power 기준 (PetPop의 best_score 방식과 동일)
     const { data } = await db.from('matchpop_players')
-      .select('callsign, best_brain_power, max_level, equipped_pack, is_champion, best_streak')
+      .select('callsign, best_brain_power, max_level, equipped_pack, is_champion, best_streak, total_clicks, games_played')
       .order('best_brain_power', { ascending: false })
       .limit(20);
     return (data || []).map(r => {
       const pack = PACKS.find(p => p.id === r.equipped_pack) || PACKS[0];
+      const avg = r.games_played > 0 ? (r.total_clicks / r.games_played).toFixed(1) : '—';
       return {
         nickname: r.callsign,
         brainPower: r.best_brain_power,
         maxLevel: r.max_level,
-        avgClicks: 0,
+        avgClicks: avg,
         packIcon: pack.icon,
         isChampion: r.is_champion
       };
